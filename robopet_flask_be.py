@@ -2,7 +2,11 @@
 
 from dummy_actions import *
 from flask import Flask, request
+import json
+import hashlib
 from multiprocessing import Process
+from ../RobopetFaceDetect import train
+import os
 
 hostileP = Process(target=dummy_hostile)
 friendlyP = Process(target=dummy_friendly)
@@ -18,19 +22,17 @@ def create_user():
             print('No video available')
             print(request.files.keys())
             return "No video", 400
-    
-    print("files:")
-    for k in request.files.keys():
-        print(k)
-    print("args:")
-    for k in request.args.keys():
-        print(k)
-    print("form:")
-    for k in request.form.keys():
-        print(k)
+
+
+    username = request.form['user']
+    id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
     f = request.files['video']
-    f.save(f"videos/{request.form['user']}")
-    return "1", 201
+    path = f"videos/{username}"
+    f.save(path)
+    num_pics = train(id)
+    if num_pics < 30:
+        return str(num_pics), 422
+    return str(num_pics), 201
 
 @app.route('/hostile', methods=['PUT'])
 def hostile():
