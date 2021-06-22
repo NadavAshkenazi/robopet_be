@@ -29,7 +29,7 @@ def create_user():
     f = request.files['video']
     path = f"videos/{username}"
     f.save(path)
-    num_pics = train(id)
+    num_pics = train(id, path)
     if num_pics < 30:
         return str(num_pics), 422
     return str(num_pics), 201
