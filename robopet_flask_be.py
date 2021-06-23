@@ -28,8 +28,11 @@ def create_user():
 
     # read json file and update it
     # json file is a dict - key is ID (string), value is username
-    with open("users.json", "r") as users_file:
-        users_dict = json.loads(users_file.read().replace('\n', ''))
+    try:
+        with open("users.json", "r") as users_file:
+            users_dict = json.loads(users_file.read().replace('\n', ''))
+    except:
+        users_dict = {}
     if str(user_id) not in users_dict:
         users_dict[str(user_id)] = username
     with open("users.json", "w") as users_file:
