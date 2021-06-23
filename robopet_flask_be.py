@@ -23,16 +23,27 @@ def create_user():
             print(request.files.keys())
             return "No video", 400
 
-
     username = request.form['user']
-    id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
+    user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
+
+    # read json file and update it
+    # json file is a dict - key is ID, value is username
+    with open("users.json", "rw") as users_file:
+        users_str = users_file.read.replace('\n', '')
+        users_dict = json.loads(users_str)
+        if user_id not in users_dict:
+            users_dict[user_id] = username
+        users_str = json.dumps(users_dict)
+        users_file.write(users_str)
+
     f = request.files['video']
     path = f"videos/{username}"
     f.save(path)
-    num_pics = train(id, path)
+    num_pics = train(user_id, path)
     if num_pics < 30:
         return str(num_pics), 422
     return str(num_pics), 201
+
 
 @app.route('/hostile', methods=['PUT'])
 def hostile():
@@ -44,6 +55,7 @@ def hostile():
     processes[0].start()
     return "OK", 204
 
+
 @app.route('/friendly', methods=['PUT'])
 def friendly():
     for p in processes:
@@ -54,6 +66,7 @@ def friendly():
     processes[1].start()
     return "OK", 204
 
+
 @app.route('/sleep', methods=['PUT'])
 def sleep():
     for p in processes:
@@ -61,6 +74,7 @@ def sleep():
             p.terminate()
 
     return "OK", 204
+
 
 @app.route('/follow', methods=['PUT'])
 def follow():
