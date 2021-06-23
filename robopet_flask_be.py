@@ -27,14 +27,13 @@ def create_user():
     user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
 
     # read json file and update it
-    # json file is a dict - key is ID, value is username
-    with open("users.json", "rw") as users_file:
-        users_str = users_file.read.replace('\n', '')
-        users_dict = json.loads(users_str)
-        if user_id not in users_dict:
-            users_dict[user_id] = username
-        users_str = json.dumps(users_dict)
-        users_file.write(users_str)
+    # json file is a dict - key is ID (string), value is username
+    with open("users.json", "r") as users_file:
+        users_dict = json.loads(users_file.read().replace('\n', ''))
+    if str(user_id) not in users_dict:
+        users_dict[str(user_id)] = username
+    with open("users.json", "w") as users_file:
+        users_file.write(json.dumps(users_dict))
 
     f = request.files['video']
     path = f"videos/{username}"
