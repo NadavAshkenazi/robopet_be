@@ -1,0 +1,3 @@
+[submodule "RobopetFaceDetect"]
+	path = RobopetFaceDetect
+	url = https://github.com/Technion-Projects/RobopetFaceDetect.git

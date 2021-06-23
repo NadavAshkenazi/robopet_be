@@ -5,7 +5,7 @@ from flask import Flask, request
 import json
 import hashlib
 from multiprocessing import Process
-from ../RobopetFaceDetect import train
+from RobopetFaceDetect.main import train
 import os
 
 hostileP = Process(target=dummy_hostile)
