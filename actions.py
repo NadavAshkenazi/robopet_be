@@ -36,10 +36,25 @@ def make_sounds(sound):
     """
     make the dog bark
     :param sound: enum of type Sound
-    :return: void
+    :return: True iff sound was played
     """
     mixer.init()
     mixer.music.load(sound_files[sound])
     mixer.music.set_volume(1.0)
     if not mixer.music.get_busy():
         mixer.music.play()
+        return True
+    else:
+        return False
+
+
+def make_repetitive_sounds(sound, duration):
+    """
+    :param sound: what sound to make, instance of Sound
+    :param duration: duration in seconds
+    :return: void
+    """
+    start = time.time()
+    while time.time() - start < duration:
+        if make_sounds(sound):
+            time.sleep(0.5)
