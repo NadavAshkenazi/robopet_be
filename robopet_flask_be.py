@@ -6,7 +6,7 @@ import json
 import hashlib
 from multiprocessing import Process
 from RobopetFaceDetect.main import train
-from actions import make_sounds, Sound, make_repetitive_sounds
+from actions import make_sounds, Sound, make_repetitive_sounds, init_serial, send_serial_cmd
 import os
 
 hostileP = Process(target=dummy_hostile)
