@@ -58,3 +58,7 @@ def make_repetitive_sounds(sound, duration):
     while time.time() - start < duration:
         if make_sounds(sound):
             time.sleep(0.5)
+
+
+if __name__ == "__main__":
+    make_sounds(Sound.BARK_TWICE)
