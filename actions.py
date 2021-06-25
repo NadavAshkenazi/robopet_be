@@ -14,7 +14,7 @@ class Sound(Enum):
 
 
 sound_files = {
-    Sound.BARK_TWICE: "sounds/bark_twice.wav",
+    Sound.BARK_TWICE: "sounds/barking_twice.wav",
     Sound.HAPPY_BARK: "sounds/happy_barks.wav",
     Sound.MEDIUM_ANGRY_BARK: "sounds/medium_angry_bark.wav",
     Sound.SCARY_BARK: "sounds/scary_bark.wav"
