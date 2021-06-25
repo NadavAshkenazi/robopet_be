@@ -97,12 +97,12 @@ def bark():
 
 
 @app.route('/wag', methods=['PUT'])
-def bark():
+def wag():
     # TODO: add serial console write
     return "OK", 204
 
 
 @app.route('/spin', methods=['PUT'])
-def bark():
+def spin():
     # TODO: add serial console write
     return "OK", 204
