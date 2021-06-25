@@ -93,7 +93,13 @@ def follow():
 
 @app.route('/bark', methods=['PUT'])
 def bark():
-    make_repetitive_sounds(Sound.BARK_TWICE, 6)
+    ser = mySerial()
+    ser.init_serial()
+    for i in range(3):
+        ser.write("mouth open")
+        make_sounds(Sound.BARK_TWICE)
+        ser.write("mouth close")
+
     return "OK", 204
 
 
