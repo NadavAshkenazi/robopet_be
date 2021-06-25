@@ -2,6 +2,7 @@ import robopetSerial
 import time
 from enum import Enum
 from pygame import mixer
+import pygame
 
 from robopetSerial import mySerial
 
@@ -14,14 +15,14 @@ class Sound(Enum):
 
 
 sound_files = {
-    Sound.BARK_TWICE: "sounds/barking_twice.wav",
+    Sound.BARK_TWICE: "sounds/bark_once.wav",
     Sound.HAPPY_BARK: "sounds/happy_barks.wav",
     Sound.MEDIUM_ANGRY_BARK: "sounds/medium_angry_bark.wav",
     Sound.SCARY_BARK: "sounds/scary_bark.wav"
 }
 
 sound_lengths = {
-    Sound.BARK_TWICE: 2,
+    Sound.BARK_TWICE: 0.25,
     Sound.HAPPY_BARK: 6,
     Sound.MEDIUM_ANGRY_BARK: 2,
     Sound.SCARY_BARK: 2
@@ -33,16 +34,16 @@ def make_sounds(sound):
     :param sound: enum of type Sound
     :return: True iff sound was played
     """
+    # mixer.pre_init(44100, -16, 1, 1024)
     mixer.init()
+    # pygame.init()
+    # mixer.quit()
+    # mixer.init(44100, -16, 1, 1024)
     mixer.music.load(sound_files[sound])
     mixer.music.set_volume(1.0)
-    if not mixer.music.get_busy():
-        mixer.music.play()
-        time.sleep(sound_lengths[sound])
-        return True
-    else:
-        return False
-
+    mixer.music.play()
+    while mixer.music.get_busy():
+        pass
 
 def make_repetitive_sounds(sound, duration):
     """

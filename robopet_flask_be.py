@@ -9,6 +9,7 @@ from RobopetFaceDetect.main import train
 from robopetSounds import make_sounds, Sound, make_repetitive_sounds
 from robopetSerial import mySerial
 import os
+import threading
 
 hostileP = Process(target=dummy_hostile)
 friendlyP = Process(target=dummy_friendly)
@@ -93,23 +94,45 @@ def follow():
 
 @app.route('/bark', methods=['PUT'])
 def bark():
+    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.BARK_TWICE, 2.5))
+    t.start()
     ser = mySerial()
     ser.init_serial()
-    for i in range(3):
+    time.sleep(0.5)
+    for i in range(4):
         ser.write("mouth open")
-        make_sounds(Sound.BARK_TWICE)
+        time.sleep(0.3)
         ser.write("mouth close")
+        time.sleep(0.3)
 
+    t.join()
     return "OK", 204
 
 
 @app.route('/wag', methods=['PUT'])
 def wag():
-    # TODO: add serial console write
+    ser = mySerial()
+    ser.init_serial()
+    for i in range(4):
+        ser.write("shakeTail")
+        time.sleep(0.2)
     return "OK", 204
 
 
 @app.route('/spin', methods=['PUT'])
 def spin():
-    # TODO: add serial console write
+    ser = mySerial()
+    ser.init_serial()
+    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
+    t.start()
+    ser.write("mouth open")
+    ser.write("cam_setX 170")
+    ser.write("tail --start 60")
+    ser.write("tail --end 10")
+    ser.write("spin --left --front 12")
+    time.sleep(3)
+    ser.write("mouth close")
+    time.sleep(3)
+    t.join()
+
     return "OK", 204
