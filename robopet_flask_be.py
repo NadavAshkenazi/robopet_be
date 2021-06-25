@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
-from dummy_actions import *
+from behaviors import *
 from flask import Flask, request
 import json
 import hashlib
 from multiprocessing import Process
 from RobopetFaceDetect.main import train
-from actions import make_sounds, Sound, make_repetitive_sounds, init_serial, send_serial_cmd
+from robopetSounds import make_sounds, Sound, make_repetitive_sounds
+from robopetSerial import mySerial
 import os
 
 hostileP = Process(target=dummy_hostile)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from enum import Enum
-import serial
+import robopetSerial
 import time
 
 delay = 0
@@ -49,7 +49,7 @@ def manual_movement(ser):
         read_serial(ser)
 
 if __name__ == "__main__":
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    ser = robopetSerial.Serial('/dev/ttyACM0', 9600, timeout=1)
     ser.flush()
     # ser.write(b"DEBUG ON#")
     # read_serial(ser)

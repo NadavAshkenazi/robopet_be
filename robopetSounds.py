@@ -1,39 +1,9 @@
-import serial
+import robopetSerial
 import time
-import json
 from enum import Enum
-from RobopetFaceDetect.main import face_recognize
 from pygame import mixer
 
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-    
-
-class mySerial(metaclass=Singleton):
-    ser = None
-    def init_serial(self):
-        if self.ser is None:
-            self.ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-            self.ser.flush()
-    
-    def read(self):
-        try:
-            time.sleep(delay)
-            while self.ser.in_waiting:
-                line = self.ser.readline().decode('utf-8').rstrip()
-                print(line)
-        except:
-            pass
-    
-    def write(self, cmd):
-        self.ser.write(bytes(cmd+"#", "UTF-8"))
+from robopetSerial import mySerial
 
 
 class Sound(Enum):
@@ -56,19 +26,6 @@ sound_lengths = {
     Sound.MEDIUM_ANGRY_BARK: 2,
     Sound.SCARY_BARK: 2
 }
-
-
-def init_serial():
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-    ser.flush()
-    return ser
-
-
-def send_serial_cmd(cmd):
-    ser = mySerial()
-    ser.init_serial()
-    ser.write(cmd)
-    
 
 def make_sounds(sound):
     """
