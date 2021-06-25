@@ -6,6 +6,7 @@ import json
 import hashlib
 from multiprocessing import Process
 from RobopetFaceDetect.main import train
+from actions import make_sounds, Sound
 import os
 
 hostileP = Process(target=dummy_hostile)
@@ -86,4 +87,22 @@ def follow():
 
     processes[2] = Process(target=dummy_follow)
     processes[2].start()
+    return "OK", 204
+
+
+@app.route('/bark', methods=['PUT'])
+def bark():
+    make_sounds(Sound.BARK_TWICE)
+    return "OK", 204
+
+
+@app.route('/wag', methods=['PUT'])
+def bark():
+    # TODO: add serial console write
+    return "OK", 204
+
+
+@app.route('/spin', methods=['PUT'])
+def bark():
+    # TODO: add serial console write
     return "OK", 204
