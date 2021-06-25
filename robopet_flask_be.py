@@ -5,6 +5,7 @@ from flask import Flask, request
 import json
 import hashlib
 from multiprocessing import Process
+from picamera import PiCamera
 from RobopetFaceDetect.main import train
 from robopetSounds import make_sounds, Sound, make_repetitive_sounds
 from robopetSerial import mySerial
@@ -16,6 +17,42 @@ friendlyP = Process(target=dummy_friendly)
 followP = Process(target=dummy_follow)
 processes = [hostileP, friendlyP, followP]
 app = Flask(__name__)
+
+
+@app.route('/take_video', method=['PUT'])
+def record_user():
+    print("Got request")
+
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("cam_setY 90")
+
+    username = request.form['user']
+    user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
+
+    # read json file and update it
+    # json file is a dict - key is ID (string), value is username
+    try:
+        with open("users.json", "r") as users_file:
+            users_dict = json.loads(users_file.read().replace('\n', ''))
+    except:
+        users_dict = {}
+    if str(user_id) not in users_dict:
+        users_dict[str(user_id)] = username
+    with open("users.json", "w") as users_file:
+        users_file.write(json.dumps(users_dict))
+
+    path = f"videos/{username}.h264"
+    camera = PiCamera()
+    camera.rotation = 270
+    camera.start_recording(path)
+    time.sleep(5)
+    camera.stop_recording()
+
+    num_pics = train(user_id, path)
+    if num_pics < 30:
+        return str(num_pics), 422
+    return str(num_pics), 201
 
 
 @app.route('/upload', methods=['PUT'])
