@@ -20,6 +20,13 @@ sound_files = {
     Sound.SCARY_BARK: "sounds/scary_bark.wav"
 }
 
+sound_lengths = {
+    Sound.BARK_TWICE: 2,
+    Sound.HAPPY_BARK: 6,
+    Sound.MEDIUM_ANGRY_BARK: 2,
+    Sound.SCARY_BARK: 2
+}
+
 
 def init_serial():
     ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
@@ -43,6 +50,7 @@ def make_sounds(sound):
     mixer.music.set_volume(1.0)
     if not mixer.music.get_busy():
         mixer.music.play()
+        time.sleep(sound_lengths[sound])
         return True
     else:
         return False
