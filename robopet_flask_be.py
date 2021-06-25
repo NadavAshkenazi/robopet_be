@@ -26,6 +26,7 @@ def record_user():
     ser = mySerial()
     ser.init_serial()
     ser.write("cam_setY 90")
+    time.sleep(0.5)
 
     username = request.form['user']
     user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
