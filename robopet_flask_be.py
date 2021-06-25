@@ -19,7 +19,7 @@ processes = [hostileP, friendlyP, followP]
 app = Flask(__name__)
 
 
-@app.route('/take_video', method=['PUT'])
+@app.route('/take_video', methods=['PUT'])
 def record_user():
     print("Got request")
 
