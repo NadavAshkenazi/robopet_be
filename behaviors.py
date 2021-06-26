@@ -73,10 +73,10 @@ def move_by_location(location):
 
 def align_by_location(location):
     # turn = math.floor(60*(1 + location[0]))
-    print(f"turn is {location[1]}")
+    print(f"turn is {180 - location[1]}")
     ser = mySerial()
     ser.init_serial()
-    ser.write(f"turn {location[1]}")
+    ser.write(f"turn {180 - location[1]}")
     ser.write("forward")
     time.sleep(3)
     ser.write("stop")
