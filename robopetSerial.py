@@ -24,8 +24,15 @@ class mySerial(metaclass=Singleton, ):
             while self.ser.in_waiting:
                 line = self.ser.readline().decode('utf-8').rstrip()
                 print(line)
+            return line
         except:
             pass
 
     def write(self, cmd):
+        self.ser.reset_input_buffer()
         self.ser.write(bytes(cmd+"#", "UTF-8"))
+
+    def flush_input(self):
+        self.ser.reset_input_buffer()
+        
+

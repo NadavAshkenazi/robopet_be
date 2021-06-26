@@ -11,7 +11,7 @@ MIN_X_ANGLE = 0
 MAX_X_ANGLE = 180
 MIN_Y_ANGLE = 0
 MAX_Y_ANGLE = 90
-CAMERA_STEP = 10
+CAMERA_STEP = 20
 
 
 def _bark():
@@ -55,14 +55,24 @@ def _spin():
 def search_face():
     ser = mySerial()
     ser.init_serial()
-    location = None
-    for y in range(MAX_Y_ANGLE, MIN_Y_ANGLE, -1*CAMERA_STEP):
-        ser.write(f"cam_setY {y}")
-        for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
-            ser.write(f"cam_setX {x}")
-            location = getLocation(10)
-            if location is not None:
-                return location, x
+    print("sleeping before cam_setY 90")
+    time.sleep(2)
+    ser.write("cam_setY 90")
+    ser.write("cam_setX 90")
+    location = getLocation(5)
+    if location is not None and location[0] > 0.3 and location[0] < 0.7:
+        print("Found at 90")
+        print(location)
+        return location, 90
+
+    for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
+        print(f"cam_setX {x}")
+        ser.write(f"cam_setX {x}")
+        location = getLocation(5)
+        if location is not None and location[0] > 0.3 and location[0] < 0.7:
+            print(f"Found at {x}")
+            print(location)
+            return location, x
 
     return None
 
@@ -76,12 +86,26 @@ def align_by_location(location):
     print(f"turn is {180 - location[1]}")
     ser = mySerial()
     ser.init_serial()
+    ser.write("speed 255")
     ser.write(f"turn {180 - location[1]}")
     ser.write("forward")
     time.sleep(3)
     ser.write("stop")
     ser.write("turn 90")
     ser.write("cam_setX 90")
+
+    ser.write("speed 200")
+    ser.flush_input()
+    while True:
+        ser.write("dist --front")
+#        ser.write("dist --back")
+        dist = None
+        while dist is None or not dist.isnumeric():
+            dist = ser.read()
+        dist = float(dist)
+        if (dist < 40 and dist > 0):
+            break
+    ser.write("stop")
 
 
 def behave_hostile():
