@@ -1,6 +1,6 @@
 import time
 import serial
-import os
+import glob
 
 class Singleton(type):
     _instances = {}
@@ -12,11 +12,11 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class mySerial(metaclass=Singleton):
+class mySerial(metaclass=Singleton, ):
     ser = None
     def init_serial(self):
         if self.ser is None:
-            self.ser = serial.Serial(os.getenv('arduino_dev'), 9600, timeout=1)
+            self.ser = serial.Serial(glob.glob("/dev/ttyACM*")[0], 9600, timeout=1)
             self.ser.flush()
 
     def read(self):
