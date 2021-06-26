@@ -57,29 +57,28 @@ def search_face():
     ser.init_serial()
     location = None
     for y in range(MAX_Y_ANGLE, MIN_Y_ANGLE, -1*CAMERA_STEP):
-        if location is not None:
-            break
         ser.write(f"cam_setY {y}")
         for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
             ser.write(f"cam_setX {x}")
             location = getLocation(10)
             if location is not None:
-                break
+                return location, x
 
-    return location
+    return None
+
 
 def move_by_location(location):
     pass
 
 
 def align_by_location(location):
-    turn = math.floor(60*(1 + location[0]))
-    print(f"turn is {turn}")
+    # turn = math.floor(60*(1 + location[0]))
+    print(f"turn is {location[1]}")
     ser = mySerial()
     ser.init_serial()
-    ser.write(f"turn {turn}")
+    ser.write(f"turn {location[1]}")
     ser.write("forward")
-    time.sleep(2)
+    time.sleep(3)
     ser.write("stop")
     ser.write("turn 90")
 
