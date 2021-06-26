@@ -147,7 +147,7 @@ def _bark():
     t.join()
 
 @app.route('/bark', methods=['PUT'])
-def _bark():
+def bark():
     _bark()
     return "OK", 204
 
@@ -178,6 +178,6 @@ def _spin():
     t.join()
 
 @app.route('/spin', methods=['PUT'])
-def _spin():
+def spin():
     _spin()
     return "OK", 204
