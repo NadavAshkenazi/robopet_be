@@ -95,7 +95,7 @@ def hostile():
             p.terminate()
             processes[i] = None
 
-    processes[0] = Process(target=hostile)
+    processes[0] = Process(target=behave_hostile)
     processes[0].start()
     return "OK", 204
 
@@ -107,7 +107,7 @@ def friendly():
             p.terminate()
             processes[i] = None
 
-    processes[1] = Process(target=friendly)
+    processes[1] = Process(target=behave_friendly)
     processes[1].start()
     return "OK", 204
 

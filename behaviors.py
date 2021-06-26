@@ -76,7 +76,7 @@ def align_by_location(location):
     ser.write("turn 90")
 
 
-def hostile():
+def behave_hostile():
     ser = mySerial()
     ser.init_serial()
     while True:
@@ -86,7 +86,7 @@ def hostile():
         time.sleep(1)
 
 
-def friendly():
+def behave_friendly():
     ser = mySerial()
     ser.init_serial()
     ser.write("eyes green")
