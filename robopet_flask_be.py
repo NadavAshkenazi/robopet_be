@@ -125,24 +125,27 @@ def follow():
         if p.is_alive():
             p.terminate()
 
-    processes[2] = Process(target=dummy_follow)
+    processes[2] = Process(target=follow)
     processes[2].start()
     return "OK", 204
+
+
+def _bark_motion():
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("mouth open")
+    time.sleep(0.3)
+    ser.write("mouth close")
+    time.sleep(0.3)
 
 
 @app.route('/bark', methods=['PUT'])
 def bark():
     t = threading.Thread(target=make_repetitive_sounds, args=(Sound.BARK_TWICE, 2.5))
     t.start()
-    ser = mySerial()
-    ser.init_serial()
     time.sleep(0.5)
     for i in range(4):
-        ser.write("mouth open")
-        time.sleep(0.3)
-        ser.write("mouth close")
-        time.sleep(0.3)
-
+        _bark_motion()
     t.join()
     return "OK", 204
 
