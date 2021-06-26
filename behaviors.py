@@ -2,7 +2,7 @@
 import time
 from datetime import datetime
 from robopetSerial import mySerial
-from robopet_flask_be import spin, bark
+from robopet_flask_be import _spin, _bark
 from RobopetFaceDetect.main import getLocation
 import threading
 
@@ -55,12 +55,12 @@ def friendly():
     ser = mySerial()
     ser.init_serial()
     ser.write("eyes green")
-    spin()
+    _spin()
     location = search_face()
     if location is None:
         ser.write("spin --left --front 2")
         location = search_face()
     if location is None:
-        bark()
+        _bark()
         return
     align_by_location(location)

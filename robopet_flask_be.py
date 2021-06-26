@@ -138,15 +138,17 @@ def _bark_motion():
     ser.write("mouth close")
     time.sleep(0.3)
 
-
-@app.route('/bark', methods=['PUT'])
-def bark():
+def _bark():
     t = threading.Thread(target=make_repetitive_sounds, args=(Sound.BARK_TWICE, 2.5))
     t.start()
     time.sleep(0.5)
     for i in range(4):
         _bark_motion()
     t.join()
+
+@app.route('/bark', methods=['PUT'])
+def _bark():
+    _bark()
     return "OK", 204
 
 
@@ -160,8 +162,7 @@ def wag():
     return "OK", 204
 
 
-@app.route('/spin', methods=['PUT'])
-def spin():
+def _spin():
     ser = mySerial()
     ser.init_serial()
     t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
@@ -176,4 +177,7 @@ def spin():
     time.sleep(3)
     t.join()
 
+@app.route('/spin', methods=['PUT'])
+def _spin():
+    _spin()
     return "OK", 204
