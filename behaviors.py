@@ -81,6 +81,7 @@ def align_by_location(location):
     time.sleep(3)
     ser.write("stop")
     ser.write("turn 90")
+    ser.write("cam_setX 90")
 
 
 def behave_hostile():
