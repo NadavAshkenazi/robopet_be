@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import time
+import math
 from datetime import datetime
 from robopetSerial import mySerial
 from robopetSounds import make_repetitive_sounds, Sound
@@ -72,7 +73,7 @@ def move_by_location(location):
 
 
 def align_by_location(location):
-    turn = 60*(1 + location[0])
+    turn = math.floor(60*(1 + location[0]))
     print(f"turn is {turn}")
     ser = mySerial()
     ser.init_serial()
