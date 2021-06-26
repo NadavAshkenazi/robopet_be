@@ -13,8 +13,8 @@ from robopetSerial import mySerial
 import os
 import threading
 
-hostileP = Process(target=hostile)
-friendlyP = Process(target=friendly)
+hostileP = None
+friendlyP = None
 processes = [hostileP, friendlyP]
 app = Flask(__name__)
 
@@ -90,9 +90,10 @@ def create_user():
 
 @app.route('/hostile', methods=['PUT'])
 def hostile():
-    for p in processes:
-        if p.is_alive():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
             p.terminate()
+            processes[i] = None
 
     processes[0] = Process(target=hostile)
     processes[0].start()
@@ -101,9 +102,10 @@ def hostile():
 
 @app.route('/friendly', methods=['PUT'])
 def friendly():
-    for p in processes:
-        if p.is_alive():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
             p.terminate()
+            processes[i] = None
 
     processes[1] = Process(target=friendly)
     processes[1].start()
