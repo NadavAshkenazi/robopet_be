@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from behaviors import _bark, _spin
 from behaviors import *
 from flask import Flask, request
 import json
@@ -12,10 +13,9 @@ from robopetSerial import mySerial
 import os
 import threading
 
-hostileP = Process(target=dummy_hostile)
-friendlyP = Process(target=dummy_friendly)
-followP = Process(target=dummy_follow)
-processes = [hostileP, friendlyP, followP]
+hostileP = Process(target=hostile)
+friendlyP = Process(target=friendly)
+processes = [hostileP, friendlyP]
 app = Flask(__name__)
 
 
@@ -94,7 +94,7 @@ def hostile():
         if p.is_alive():
             p.terminate()
 
-    processes[0] = Process(target=dummy_hostile)
+    processes[0] = Process(target=hostile)
     processes[0].start()
     return "OK", 204
 
@@ -105,7 +105,7 @@ def friendly():
         if p.is_alive():
             p.terminate()
 
-    processes[1] = Process(target=dummy_friendly)
+    processes[1] = Process(target=friendly)
     processes[1].start()
     return "OK", 204
 
@@ -119,32 +119,17 @@ def sleep():
     return "OK", 204
 
 
-@app.route('/follow', methods=['PUT'])
-def follow():
-    for p in processes:
-        if p.is_alive():
-            p.terminate()
+# @app.route('/follow', methods=['PUT'])
+# def follow():
+#     for p in processes:
+#         if p.is_alive():
+#             p.terminate()
+#
+#     processes[2] = Process(target=follow)
+#     processes[2].start()
+#     return "OK", 204
 
-    processes[2] = Process(target=follow)
-    processes[2].start()
-    return "OK", 204
 
-
-def _bark_motion():
-    ser = mySerial()
-    ser.init_serial()
-    ser.write("mouth open")
-    time.sleep(0.3)
-    ser.write("mouth close")
-    time.sleep(0.3)
-
-def _bark():
-    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.BARK_TWICE, 2.5))
-    t.start()
-    time.sleep(0.5)
-    for i in range(4):
-        _bark_motion()
-    t.join()
 
 @app.route('/bark', methods=['PUT'])
 def bark():
@@ -162,20 +147,6 @@ def wag():
     return "OK", 204
 
 
-def _spin():
-    ser = mySerial()
-    ser.init_serial()
-    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
-    t.start()
-    ser.write("mouth open")
-    ser.write("cam_setX 170")
-    ser.write("tail --start 60")
-    ser.write("tail --end 10")
-    ser.write("spin --left --front 12")
-    time.sleep(3)
-    ser.write("mouth close")
-    time.sleep(3)
-    t.join()
 
 @app.route('/spin', methods=['PUT'])
 def spin():

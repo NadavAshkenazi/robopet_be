@@ -2,7 +2,7 @@
 import time
 from datetime import datetime
 from robopetSerial import mySerial
-from robopet_flask_be import _spin, _bark
+from robopetSounds import make_repetitive_sounds, Sound
 from RobopetFaceDetect.main import getLocation
 import threading
 
@@ -11,6 +11,41 @@ MAX_X_ANGLE = 180
 MIN_Y_ANGLE = 0
 MAX_Y_ANGLE = 90
 CAMERA_STEP = 10
+
+
+def _bark():
+    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.BARK_TWICE, 2.5))
+    t.start()
+    time.sleep(0.5)
+    for i in range(4):
+        _bark_motion()
+    t.join()
+
+
+def _bark_motion():
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("mouth open")
+    time.sleep(0.3)
+    ser.write("mouth close")
+    time.sleep(0.3)
+
+
+def _spin():
+    ser = mySerial()
+    ser.init_serial()
+    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
+    t.start()
+    ser.write("mouth open")
+    ser.write("cam_setX 170")
+    ser.write("tail --start 60")
+    ser.write("tail --end 10")
+    ser.write("spin --left --front 12")
+    time.sleep(3)
+    ser.write("mouth close")
+    time.sleep(3)
+    t.join()
+
 
 def search_face():
     ser = mySerial()
