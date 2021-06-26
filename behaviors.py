@@ -37,11 +37,15 @@ def _spin():
     t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
     t.start()
     ser.write("mouth open")
+    time.sleep(2)
     ser.write("cam_setX 170")
+    time.sleep(2)
     ser.write("tail --start 60")
+    time.sleep(2)
     ser.write("tail --end 10")
+    time.sleep(2)
     ser.write("spin --left --front 12")
-    time.sleep(3)
+    time.sleep(4)
     ser.write("mouth close")
     time.sleep(3)
     t.join()
@@ -69,10 +73,13 @@ def move_by_location(location):
 
 def align_by_location(location):
     turn = 60*(1 + location[0])
+    print(f"turn is {turn}")
     ser = mySerial()
     ser.init_serial()
     ser.write(f"turn {turn}")
-    time.sleep(0.3)
+    ser.write("forward")
+    time.sleep(2)
+    ser.write("stop")
     ser.write("turn 90")
 
 
@@ -90,11 +97,11 @@ def behave_friendly():
     ser = mySerial()
     ser.init_serial()
     ser.write("eyes green")
-    _spin()
+    # _spin()
     location = search_face()
-    if location is None:
-        ser.write("spin --left --front 2")
-        location = search_face()
+    # if location is None:
+    #     ser.write("spin --left --front 2")
+    #     location = search_face()
     if location is None:
         _bark()
         return
