@@ -53,6 +53,31 @@ def _spin():
     t.join()
 
 
+def search_face_hostile():
+    ser = mySerial()
+    ser.init_serial()
+    print("sleeping before cam_setY 90")
+    time.sleep(2)
+    ser.write("cam_setY 75")
+    ser.write("cam_setX 90")
+    location = getLocationHostile(3)
+    if location is not None and location[0] > 0.3 and location[0] < 0.7:
+        print("Found at 90")
+        print(location)
+        return location, 90
+
+    for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
+        print(f"cam_setX {x}")
+        ser.write(f"cam_setX {x}")
+        location = getLocationHostile(3)
+        if location is not None and location[0] > 0.3 and location[0] < 0.7:
+            print(f"Found at {x}")
+            print(location)
+            return location, x
+
+    return None
+
+
 def search_face():
     ser = mySerial()
     ser.init_serial()
@@ -78,8 +103,18 @@ def search_face():
     return None
 
 
-def move_by_location(location):
-    pass
+def move_until_obstacle(location):
+    ser.write("speed 200")
+    ser.flush_input()
+    while True:
+        ser.write("dist --front")
+        dist = None
+        while dist is None or not dist.isnumeric():
+            dist = ser.read()
+        dist = float(dist)
+        if (dist < 40 and dist > 0):
+            break
+    ser.write("stop")
 
 
 def align_by_location(location):
@@ -100,28 +135,19 @@ def align_by_location(location):
     ser.write("turn 90")
     ser.write("cam_setX 90")
 
-    ser.write("speed 200")
-    ser.flush_input()
-    while True:
-        ser.write("dist --front")
-#        ser.write("dist --back")
-        dist = None
-        while dist is None or not dist.isnumeric():
-            dist = ser.read()
-        dist = float(dist)
-        if (dist < 40 and dist > 0):
-            break
-    ser.write("stop")
 
 
 def behave_hostile():
     ser = mySerial()
     ser.init_serial()
-    while True:
-        ser.write("turn 120")
-        time.sleep(1)
-        ser.write("turn 60")
-        time.sleep(1)
+    ser.write("eyes red")
+
+    location = search_face()
+    if location is None:
+        _bark()
+        return
+
+    align_by_location(location)
 
 
 def behave_friendly():
@@ -137,3 +163,4 @@ def behave_friendly():
         _bark()
         return
     align_by_location(location)
+    move_until_obstacle()
