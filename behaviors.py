@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 from robopetSerial import mySerial
 from robopetSounds import make_repetitive_sounds, Sound
-from RobopetFaceDetect.main import getLocation
+from RobopetFaceDetect.main import getLocation, getLocationHostile
 from arduinoInfra import turn_30_right, turn_30_left
 import threading
 from multiprocessing import Process
@@ -78,7 +78,7 @@ def search_face():
     ser.write("cam_setY 75")
     ser.write("cam_setX 90")
     location = getLocation(3)
-    if location is not None and location[0] > 0.3 and location[0] < 0.7:
+    if location is not None and 0.3 < location[0] < 0.7:
         print("Found at 90")
         print(location)
         return location, 90
@@ -87,7 +87,7 @@ def search_face():
         print(f"cam_setX {x}")
         ser.write(f"cam_setX {x}")
         location = getLocation(3)
-        if location is not None and location[0] > 0.3 and location[0] < 0.7:
+        if location is not None and 0.3 < location[0] < 0.7:
             print(f"Found at {x}")
             print(location)
             return location, x
@@ -96,6 +96,9 @@ def search_face():
 
 
 def move_until_obstacle(location):
+    ser = mySerial()
+    ser.init_serial()
+
     ser.write("speed 200")
     ser.flush_input()
     while True:
@@ -104,7 +107,7 @@ def move_until_obstacle(location):
         while dist is None or not dist.isnumeric():
             dist = ser.read()
         dist = float(dist)
-        if (dist < 40 and dist > 0):
+        if 40 > dist > 0:
             break
     ser.write("stop")
 
