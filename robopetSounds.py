@@ -12,20 +12,23 @@ class Sound(Enum):
     HAPPY_BARK = 2
     MEDIUM_ANGRY_BARK = 3
     SCARY_BARK = 4
+    GROWL = 5
 
 
 sound_files = {
     Sound.BARK_TWICE: "sounds/bark_once.wav",
     Sound.HAPPY_BARK: "sounds/happy_barks.wav",
     Sound.MEDIUM_ANGRY_BARK: "sounds/medium_angry_bark.wav",
-    Sound.SCARY_BARK: "sounds/scary_bark.wav"
+    Sound.SCARY_BARK: "sounds/scary_bark.wav",
+    Sound.GROWL: "sounds/dog-growling.wav"
 }
 
 sound_lengths = {
     Sound.BARK_TWICE: 0.25,
     Sound.HAPPY_BARK: 6,
     Sound.MEDIUM_ANGRY_BARK: 2,
-    Sound.SCARY_BARK: 2
+    Sound.SCARY_BARK: 2,
+    Sound.GROWL: 6
 }
 
 def make_sounds(sound):
