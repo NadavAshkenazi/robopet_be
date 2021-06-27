@@ -134,7 +134,9 @@ def align_by_location(location):
 def behave_hostile():
     ser = mySerial()
     ser.init_serial()
+    time.sleep(1)
     ser.write("eyes red")
+    time.sleep(1)
     p = Process(target=make_repetitive_sounds, args=(Sound.GROWL, 30))
     location = search_face()
     if location is None:
@@ -154,7 +156,7 @@ def behave_hostile():
             ser.write("backward")
         ser.write("stop")
     else:
-        t = threading.Thread(target=make_repetitive_sounds, args=(Sound.MEDIUM_ANGRY_BARK, 5))
+        t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 5))
         t.start()
         ser.write("eyes green")
         ser.write("shakeTail")
