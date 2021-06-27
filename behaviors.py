@@ -136,6 +136,7 @@ def behave_hostile():
     ser.init_serial()
     time.sleep(1)
     ser.write("eyes red")
+    ser.write("eyes red")
     time.sleep(1)
     p = Process(target=make_repetitive_sounds, args=(Sound.GROWL, 30))
     location = search_face()
@@ -148,7 +149,7 @@ def behave_hostile():
     if p.is_alive():
         p.terminate()
     if res is not None:
-        t = threading.Thread(target=make_repetitive_sounds, args=(Sound.MEDIUM_ANGRY_BARK, 5))
+        t = threading.Thread(target=make_repetitive_sounds, args=(Sound.SCARY_BARK, 5))
         t.start()
         for i in range(3):
             ser.write("forward")
