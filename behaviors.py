@@ -5,6 +5,7 @@ from datetime import datetime
 from robopetSerial import mySerial
 from robopetSounds import make_repetitive_sounds, Sound
 from RobopetFaceDetect.main import getLocation
+from arduinoInfra import turn_30_right, turn_30_left
 import threading
 
 MIN_X_ANGLE = 0
@@ -83,14 +84,17 @@ def move_by_location(location):
 
 def align_by_location(location):
     # turn = math.floor(60*(1 + location[0]))
-    print(f"turn is {180 - location[1]}")
+    turn = 180 - location[1]
+    actual_turn = 90 - turn
+    print(f"turn is {turn}")
+    if actual_turn > 0:
+        times = actual_turn // 30
+        turn_30_right(times)
+    else:
+        times = -1*actual_turn // 30
+        turn_30_left(times)
     ser = mySerial()
     ser.init_serial()
-    ser.write("speed 255")
-    ser.write(f"turn {180 - location[1]}")
-    ser.write("forward")
-    time.sleep(3)
-    ser.write("stop")
     ser.write("turn 90")
     ser.write("cam_setX 90")
 
