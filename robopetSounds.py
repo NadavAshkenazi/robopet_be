@@ -21,8 +21,6 @@ sound_files = {
     Soundtrack.GROWL: "sounds/dog-growling.wav"
 }
 
-sound_objects = {k: mixer.Sound(v) for k, v in sound_files.items()}
-
 sound_lengths = {
     Soundtrack.BARK_TWICE: 0.25,
     Soundtrack.HAPPY_BARK: 6,
@@ -39,8 +37,9 @@ def stop_sound(channel):
 
 def make_sound(sound, channel, loops=-1):
     mixer.init()
+    sound_obj = mixer.Sound(sound_files[sound])
     c = mixer.Channel(channel)
-    c.play(sound_objects[sound], loops=loops)
+    c.play(sound_obj, loops=loops)
 
 
 def make_repetitive_sounds(sound, duration):
