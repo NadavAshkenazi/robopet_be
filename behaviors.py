@@ -3,7 +3,7 @@ import time
 import math
 from datetime import datetime
 from robopetSerial import mySerial
-from robopetSounds import make_repetitive_sounds, Soundtrack
+from robopetSounds import make_repetitive_sounds, Soundtrack, make_sound, stop_sound
 from RobopetFaceDetect.main import getLocation, getLocationHostile
 from arduinoInfra import turn_30_right, turn_30_left
 import threading
@@ -18,12 +18,13 @@ CAMERA_STEP = 20
 
 
 def _bark(sound=Soundtrack.BARK_TWICE, time=2.5):
-    t = threading.Thread(target=make_repetitive_sounds, args=(sound, time))
-    t.start()
+    # t = threading.Thread(target=make_repetitive_sounds, args=(sound, time))
+    # t.start()
+    make_sound(sound, 0)
     time.sleep(0.5)
     for i in range(4):
         _bark_motion()
-    t.join()
+    stop_sound(0)
 
 
 def _bark_motion():
@@ -133,10 +134,10 @@ def behave_hostile():
     ser = mySerial()
     ser.init_serial()
     ser.write("mouthSet 60")
-    t = threading.Thread(target=make_repetitive_sounds, args=(Soundtrack.GROWL, 30))
-    t.start()
+    make_sound(Soundtrack.GROWL, 0)
     location = search_face()
     if location is None:
+        stop_sound(0)
         _bark()
         return
 
@@ -144,15 +145,10 @@ def behave_hostile():
     id, confidence = search_face_hostile()
     print(f"id is {id}")
     print(f"confidence is {confidence}")
-#    if p.is_alive():
-#        p.terminate()
-    mixer.init()
-    mixer.music.stop()
+    stop_sound(0)
     if id <= 0 or confidence > 100:
         _bark(Soundtrack.SCARY_BARK, 5)
         ser.write("eyes red")
-        # t = threading.Thread(target=make_repetitive_sounds, args=(Sound.SCARY_BARK, 5))
-        t.start()
         for i in range(3):
             ser.write("forward")
             time.sleep(0.5)
@@ -161,13 +157,10 @@ def behave_hostile():
         ser.write("stop")
     else:
         _bark(Soundtrack.HAPPY_BARK, 5)
-        # t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 5))
-        t.start()
         ser.write("eyes green")
         ser.write("shakeTail")
         time.sleep(1)
         ser.write("shakeTail")
-    t.join()
 
 
 def behave_friendly():
