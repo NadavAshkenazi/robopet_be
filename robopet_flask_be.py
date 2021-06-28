@@ -125,7 +125,7 @@ def sleep():
 #         if p.is_alive():
 #             p.terminate()
 #
-#     processes[2] = Process(target=follow)
+#     processes[2] = Process(target=behave_follow)
 #     processes[2].start()
 #     return "OK", 204
 

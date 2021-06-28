@@ -21,14 +21,6 @@ sound_files = {
     Soundtrack.GROWL: "sounds/dog-growling.wav"
 }
 
-sound_lengths = {
-    Soundtrack.BARK_TWICE: 0.25,
-    Soundtrack.HAPPY_BARK: 6,
-    Soundtrack.MEDIUM_ANGRY_BARK: 2,
-    Soundtrack.SCARY_BARK: 2,
-    Soundtrack.GROWL: 6
-}
-
 
 def stop_sound(channel):
     mixer.init()

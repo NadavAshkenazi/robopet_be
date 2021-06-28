@@ -43,8 +43,6 @@ def _spin():
     time.sleep(2)
     ser.write("cam_setX 170")
     time.sleep(2)
-    ser.write("tail --start 60")
-    time.sleep(2)
     ser.write("tail --end 10")
     time.sleep(2)
     ser.write("spin --left --front 12")
@@ -65,6 +63,8 @@ def search_face_hostile():
     print("Found stranger")
     print(location)
     return id, confidence
+    ser.write("tail --start 60")
+    time.sleep(2)
 
 
 def search_face():
@@ -152,6 +152,7 @@ def behave_hostile():
         print("Stranger")
         _bark(Soundtrack.SCARY_BARK)
         ser.write("eyes red")
+        _bark(Soundtrack.SCARY_BARK, 5)
         for i in range(3):
             ser.write("forward")
             time.sleep(0.5)
@@ -163,7 +164,7 @@ def behave_hostile():
         _bark(Soundtrack.HAPPY_BARK)
         ser.write("eyes green")
         ser.write("shakeTail")
-        time.sleep(1)
+        _bark(Soundtrack.HAPPY_BARK, 5)
         ser.write("shakeTail")
 
 
