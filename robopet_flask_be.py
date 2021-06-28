@@ -22,6 +22,7 @@ def record_user():
 
     ser = mySerial()
     ser.init_serial()
+    print("cam_setY 90")
     ser.write("cam_setY 90")
     time.sleep(0.5)
 
@@ -44,7 +45,7 @@ def record_user():
     camera = PiCamera()
     camera.rotation = 270
     camera.start_recording(path)
-    time.sleep(5)
+    time.sleep(8)
     camera.stop_recording()
 
     num_pics = train(user_id, path)

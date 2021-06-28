@@ -17,9 +17,7 @@ MAX_Y_ANGLE = 90
 CAMERA_STEP = 20
 
 
-def _bark(sound=Soundtrack.BARK_TWICE, time=2.5):
-    # t = threading.Thread(target=make_repetitive_sounds, args=(sound, time))
-    # t.start()
+def _bark(sound=Soundtrack.BARK_TWICE):
     make_sound(sound, 0)
     time.sleep(0.5)
     for i in range(4):
@@ -70,13 +68,14 @@ def search_face_hostile():
 
 
 def search_face():
+    print("Search face")
     ser = mySerial()
     ser.init_serial()
-    print("sleeping before cam_setY 90")
+    print("cam_setY 75")
     time.sleep(2)
     ser.write("cam_setY 75")
     ser.write("cam_setX 90")
-    location = getLocation(3)
+    location = getLocation(6)
     if location is not None and 0.3 < location[0] < 0.7:
         print("Found at 90")
         print(location)
@@ -113,6 +112,7 @@ def move_until_obstacle(location):
 
 def align_by_location(location):
     # turn = math.floor(60*(1 + location[0]))
+    print("align by location")
     turn = 180 - location[1]
     actual_turn = turn - 90
     print(f"turn is {turn}")
@@ -131,6 +131,7 @@ def align_by_location(location):
 
 
 def behave_hostile():
+    print("Hostile start")
     ser = mySerial()
     ser.init_serial()
     ser.write("mouthSet 60")
@@ -142,12 +143,14 @@ def behave_hostile():
         return
 
     align_by_location(location)
+    print("starting search_face_hostile")
     id, confidence = search_face_hostile()
     print(f"id is {id}")
     print(f"confidence is {confidence}")
     stop_sound(0)
     if id <= 0 or confidence > 100:
-        _bark(Soundtrack.SCARY_BARK, 5)
+        print("Stranger")
+        _bark(Soundtrack.SCARY_BARK)
         ser.write("eyes red")
         for i in range(3):
             ser.write("forward")
@@ -156,7 +159,8 @@ def behave_hostile():
             time.sleep(0.5)
         ser.write("stop")
     else:
-        _bark(Soundtrack.HAPPY_BARK, 5)
+        print("Owner")
+        _bark(Soundtrack.HAPPY_BARK)
         ser.write("eyes green")
         ser.write("shakeTail")
         time.sleep(1)
