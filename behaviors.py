@@ -3,7 +3,7 @@ import time
 import math
 from datetime import datetime
 from robopetSerial import mySerial
-from robopetSounds import make_repetitive_sounds, Sound
+from robopetSounds import make_repetitive_sounds, Soundtrack
 from RobopetFaceDetect.main import getLocation, getLocationHostile
 from arduinoInfra import turn_30_right, turn_30_left
 import threading
@@ -17,7 +17,7 @@ MAX_Y_ANGLE = 90
 CAMERA_STEP = 20
 
 
-def _bark(sound=Sound.BARK_TWICE, time=2.5):
+def _bark(sound=Soundtrack.BARK_TWICE, time=2.5):
     t = threading.Thread(target=make_repetitive_sounds, args=(sound, time))
     t.start()
     time.sleep(0.5)
@@ -38,7 +38,7 @@ def _bark_motion():
 def _spin():
     ser = mySerial()
     ser.init_serial()
-    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 3.5))
+    t = threading.Thread(target=make_repetitive_sounds, args=(Soundtrack.HAPPY_BARK, 3.5))
     t.start()
     ser.write("mouth open")
     time.sleep(2)
@@ -133,9 +133,8 @@ def behave_hostile():
     ser = mySerial()
     ser.init_serial()
     ser.write("mouthSet 60")
-    t = threading.Thread(target=make_repetitive_sounds, args=(Sound.GROWL, 30))
+    t = threading.Thread(target=make_repetitive_sounds, args=(Soundtrack.GROWL, 30))
     t.start()
-    #p = Process(target=make_repetitive_sounds, args=(Sound.GROWL, 30))
     location = search_face()
     if location is None:
         _bark()
@@ -150,7 +149,7 @@ def behave_hostile():
     mixer.init()
     mixer.music.stop()
     if id <= 0 or confidence > 100:
-        _bark(Sound.SCARY_BARK, 5)
+        _bark(Soundtrack.SCARY_BARK, 5)
         ser.write("eyes red")
         # t = threading.Thread(target=make_repetitive_sounds, args=(Sound.SCARY_BARK, 5))
         t.start()
@@ -161,7 +160,7 @@ def behave_hostile():
             time.sleep(0.5)
         ser.write("stop")
     else:
-        _bark(Sound.HAPPY_BARK, 5)
+        _bark(Soundtrack.HAPPY_BARK, 5)
         # t = threading.Thread(target=make_repetitive_sounds, args=(Sound.HAPPY_BARK, 5))
         t.start()
         ser.write("eyes green")

@@ -8,10 +8,7 @@ import hashlib
 from multiprocessing import Process
 from picamera import PiCamera
 from RobopetFaceDetect.main import train
-from robopetSounds import make_sounds, Sound, make_repetitive_sounds
 from robopetSerial import mySerial
-import os
-import threading
 
 hostileP = None
 friendlyP = None
