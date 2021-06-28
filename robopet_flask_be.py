@@ -12,7 +12,8 @@ from robopetSerial import mySerial
 
 hostileP = None
 friendlyP = None
-processes = [hostileP, friendlyP]
+followP = None
+processes = [hostileP, friendlyP, followP]
 app = Flask(__name__)
 
 
@@ -112,22 +113,24 @@ def friendly():
 
 @app.route('/sleep', methods=['PUT'])
 def sleep():
-    for p in processes:
-        if p.is_alive():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
             p.terminate()
+            processes[i] = None
 
     return "OK", 204
 
 
-# @app.route('/follow', methods=['PUT'])
-# def follow():
-#     for p in processes:
-#         if p.is_alive():
-#             p.terminate()
-#
-#     processes[2] = Process(target=behave_follow)
-#     processes[2].start()
-#     return "OK", 204
+@app.route('/follow', methods=['PUT'])
+def follow():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
+            p.terminate()
+            processes[i] = None
+
+    processes[2] = Process(target=behave_follow)
+    processes[2].start()
+    return "OK", 204
 
 
 

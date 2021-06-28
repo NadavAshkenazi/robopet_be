@@ -189,9 +189,13 @@ def follow_face():
     dist = 100
     while 40 < dist:
         location = getLocation(2)
+        if location is None:
+            continue
         if location[0] < 0.3:
+            print("Triggered < 0.3")
             align_by_location(75)
         elif location[0] > 0.7:
+            print("Triggered > 0.7")
             align_by_location(105)
 
         ser.write("dist --front")
