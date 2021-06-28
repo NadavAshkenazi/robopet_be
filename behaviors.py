@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 from robopetSerial import mySerial
 from robopetSounds import make_repetitive_sounds, Soundtrack, make_sound, stop_sound
-from RobopetFaceDetect.main import getLocation, getLocationHostile
+from RobopetFaceDetect.main import getLocation, getLocationHostile, face_recognize
 from arduinoInfra import turn_30_right, turn_30_left
 import threading
 from multiprocessing import Process
@@ -63,8 +63,6 @@ def search_face_hostile():
     print("Found stranger")
     print(location)
     return id, confidence
-    ser.write("tail --start 60")
-    time.sleep(2)
 
 
 def search_face():
@@ -111,11 +109,9 @@ def move_until_obstacle(location):
 
 
 def align_by_location(location):
-    # turn = math.floor(60*(1 + location[0]))
     print("align by location")
-    turn = 180 - location[1]
-    actual_turn = turn - 90
-    print(f"turn is {turn}")
+    actual_turn = location - 90
+    print(f"turn is {location}")
     if actual_turn > 0:
         times = actual_turn // 30
         for i in range(times):
@@ -142,7 +138,7 @@ def behave_hostile():
         _bark()
         return
 
-    align_by_location(location)
+    align_by_location(180 - location[1])
     print("starting search_face_hostile")
     id, confidence = search_face_hostile()
     print(f"id is {id}")
@@ -180,5 +176,40 @@ def behave_friendly():
     if location is None:
         _bark()
         return
-    align_by_location(location)
+    align_by_location(180 - location[1])
     move_until_obstacle()
+
+
+def follow_face():
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("speed 170")
+    ser.write("forward")
+
+    dist = 100
+    while 40 < dist:
+        location = getLocation(2)
+        if location[0] < 0.3:
+            align_by_location(75)
+        elif location[0] > 0.7:
+            align_by_location(105)
+
+        ser.write("dist --front")
+        dist = None
+        while dist is None or not dist.isnumeric():
+            dist = ser.read()
+        dist = float(dist)
+
+    ser.write("stop")
+
+
+def behave_follow():
+    ser = mySerial()
+    ser.init_serial()
+    location = search_face()
+    if location is None:
+        _bark()
+        return
+    align_by_location(180 - location[1])
+    ser.write("eyes blue")
+    follow_face()
