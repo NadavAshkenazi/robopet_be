@@ -3,8 +3,8 @@
 from robopetSerial import mySerial
 from time import sleep
 
-STEP = 5
-DELAY = 0.1
+STEP = 20
+DELAY = 0.01
 
 def read_serial(ser):
     try:
@@ -27,14 +27,14 @@ def manual_movement(ser):
             continue
 
         if 10 < angle < 170:
-            angle_x += 5
+            angle_x -= STEP
         elif 190 < angle < 350:
-            angle_x -= 5
+            angle_x += STEP
 
         if angle > 280 or angle < 80:
-            angle_y += 5
+            angle_y += STEP
         else:
-            angle_y -= 5
+            angle_y -= STEP
 
         ser.write(f"cam_setX {angle_x}")
         ser.write(f"cam_setY {angle_y}")
