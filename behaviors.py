@@ -123,25 +123,30 @@ def search_face():
     return None
 
 
-def move_until_obstacle(location):
+def move_until_obstacle():
     ser = mySerial()
     ser.init_serial()
 
     ser.write("speed 200")
     ser.flush_input()
-    while True:
+    ser.write("forward")
+    count = 0
+    while count < 3:
         ser.write("dist --front")
         dist = None
         while dist is None or not dist.isnumeric():
+            if dist is not None and "unknown" in dist:
+                ser.write("dist --front")
             dist = ser.read()
+        
         dist = float(dist)
         if 40 > dist > 0:
-            break
+            count += 1
     ser.write("stop")
 
 
 def align_by_location(location):
-    print("align by location")
+    print(f"align by location: {location}")
     actual_turn = location - 90
     print(f"turn is {location}")
     if actual_turn > 0:
@@ -178,9 +183,8 @@ def behave_hostile():
     stop_sound(0)
     if id <= 0 or confidence > 100:
         print("Stranger")
-        _bark(Soundtrack.SCARY_BARK)
+        make_sound(Soundtrack.SCARY_BARK, 0)
         ser.write("eyes red")
-        _bark(Soundtrack.SCARY_BARK, 5)
         for i in range(3):
             ser.write("forward")
             time.sleep(0.5)
@@ -189,17 +193,18 @@ def behave_hostile():
         ser.write("stop")
     else:
         print("Owner")
-        _bark(Soundtrack.HAPPY_BARK)
+        make_sound(Soundtrack.HAPPY_BARK, 0)
         ser.write("eyes green")
         ser.write("shakeTail")
-        _bark(Soundtrack.HAPPY_BARK, 5)
         ser.write("shakeTail")
+    stop_sound(0)
 
 
 def behave_friendly():
     ser = mySerial()
     ser.init_serial()
     ser.write("eyes green")
+    ser.write("turn 90")
     # _spin()
     location = search_face()
     # if location is None:
@@ -209,32 +214,38 @@ def behave_friendly():
         _bark()
         return
     align_by_location(180 - location[1])
+    ser.write("turn 90")
     move_until_obstacle()
 
 
 def follow_face():
     ser = mySerial()
     ser.init_serial()
-    ser.write("speed 170")
-    ser.write("forward")
+    ser.write("speed 200")
 
     dist = 100
-    while 40 < dist:
-        location = getLocation(2)
-        if location is None:
-            continue
-        if location[0] < 0.3:
-            print("Triggered < 0.3")
-            align_by_location(75)
-        elif location[0] > 0.7:
-            print("Triggered > 0.7")
-            align_by_location(105)
-
+    while 40 < dist and dist != 0:
+        ser.write("forward")
+        time.sleep(1)
+        ser.write("stop")
         ser.write("dist --front")
         dist = None
         while dist is None or not dist.isnumeric():
             dist = ser.read()
         dist = float(dist)
+
+        location = getLocation(2)
+        if 40 < dist and dist != 0:
+            if location is None:
+                continue
+            if location[0] < 0.3:
+                print("Triggered < 0.3")
+                align_by_location(60)
+            elif location[0] > 0.7:
+                print("Triggered > 0.7")
+                align_by_location(120)
+        else:
+            break
 
     ser.write("stop")
 

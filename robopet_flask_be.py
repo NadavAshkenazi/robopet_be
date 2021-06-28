@@ -144,7 +144,7 @@ def bark():
 def wag():
     ser = mySerial()
     ser.init_serial()
-    for i in range(4):
+    for i in range(1):
         ser.write("shakeTail")
         time.sleep(0.2)
     return "OK", 204
