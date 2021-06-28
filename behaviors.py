@@ -65,6 +65,38 @@ def search_face_hostile():
     return id, confidence
 
 
+def search_owner():
+    print("Search owner")
+    ser = mySerial()
+    ser.init_serial()
+    print("cam_setY 75")
+    time.sleep(2)
+    ser.write("cam_setY 75")
+    ser.write("cam_setX 90")
+    location, id, confidence = getLocationHostile(6)
+    if id <= 0 or confidence >= 100:
+        return None
+
+    if location is not None and 0.3 < location[0] < 0.7:
+        print("Found at 90")
+        print(location)
+        return location, 90
+
+    for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
+        print(f"cam_setX {x}")
+        ser.write(f"cam_setX {x}")
+        location, id, confidence = getLocationHostile(6)
+        if id <= 0 or confidence >= 100:
+            return None
+
+        if location is not None and 0.3 < location[0] < 0.7:
+            print(f"Found at {x}")
+            print(location)
+            return location, x
+
+    return None
+
+
 def search_face():
     print("Search face")
     ser = mySerial()
