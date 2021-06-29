@@ -33,7 +33,7 @@ def manual_movement(ser):
         elif cos_angle == 0:
             cos_angle = 2
 
-        sin_angle = (sin(radians(angle)) + 1) * 90
+        sin_angle = (sin(radians(-1*angle)) + 1) * 90
         if sin_angle == 180:
             sin_angle = 178
         elif sin_angle == 0:
