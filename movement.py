@@ -25,17 +25,12 @@ def manual_movement(ser):
 
     while True:
         inp = input()
-        if inp == "quit":
-            break
-
-        angle = int(inp)
-        read_serial(ser)
-        if angle == 0:
+        if inp == "stop":
             ser.write("stop")
             direction = Direction.STOPPED
             read_serial(ser)
             continue
-
+        angle = int(inp)
         if angle > 0 and direction != Direction.FORWARDS:
             direction = Direction.FORWARDS
             ser.write("speed 200")
