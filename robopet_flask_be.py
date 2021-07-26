@@ -2,7 +2,7 @@
 
 from behaviors import _bark, _spin
 from behaviors import *
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import json
 import hashlib
 from multiprocessing import Process
@@ -15,6 +15,17 @@ friendlyP = None
 followP = None
 processes = [hostileP, friendlyP, followP]
 app = Flask(__name__)
+
+
+@app.route('/get_users', methods=['GET'])
+def get_users():
+    try:
+        with open("users.json", "r") as users_file:
+            users_json = users_file.read().replace('\n', '')
+    except:
+        users_json = "{}"
+
+    return users_json, 200
 
 
 @app.route('/take_video', methods=['PUT'])
