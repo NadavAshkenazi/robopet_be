@@ -42,28 +42,31 @@ def get_orientation(angle):
 
 # True = forwards, False = backwards
 def manual_movement(ser):
+    stopped = False
     direction = Direction.STOPPED
     orientation = Orientation.STRAIGHT
 
     while True:
         inp = input()
-        if inp == "stop":
+        if inp == "stop" and not stopped:
+            stopped = True
             ser.write("stop")
             direction = Direction.STOPPED
             read_serial(ser)
             continue
 
+        if stopped:
+            stopped = False
+            ser.write("speed 200")
+            read_serial(ser)
+
         angle = int(inp)
         if angle > 0 and direction != Direction.FORWARDS:
             direction = Direction.FORWARDS
-            ser.write("speed 200")
-            read_serial(ser)
             ser.write("forward")
             read_serial(ser)
         elif angle < 0 and direction != Direction.BACKWARDS:
             direction = Direction.BACKWARDS
-            ser.write("speed 200")
-            read_serial(ser)
             ser.write("backward")
             read_serial(ser)
         next_orientation = get_orientation(abs(angle))
