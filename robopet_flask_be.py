@@ -2,7 +2,7 @@
 
 from behaviors import _bark, _spin
 # from behaviors import *
-from behaviors import behave_hostile
+from behaviors import behave_hostile, behave_friendly
 from flask import Flask, request
 import json
 import hashlib
@@ -146,28 +146,28 @@ def hostile():
     return "OK", 204
 
 
-# @app.route('/friendly', methods=['PUT'])
-# def friendly():
-#     for i, p in enumerate(processes):
-#         if p is not None and p.is_alive():
-#             p.terminate()
-#             processes[i] = None
-# 
-#     processes[1] = Process(target=behave_friendly)
-#     processes[1].start()
-#     return "OK", 204
-# 
-# 
-# @app.route('/sleep', methods=['PUT'])
-# def sleep():
-#     for i, p in enumerate(processes):
-#         if p is not None and p.is_alive():
-#             p.terminate()
-#             processes[i] = None
-# 
-#     return "OK", 204
-# 
-# 
+@app.route('/friendly', methods=['PUT'])
+def friendly():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
+            p.terminate()
+            processes[i] = None
+
+    processes[1] = Process(target=behave_friendly)
+    processes[1].start()
+    return "OK", 204
+
+
+@app.route('/sleep', methods=['PUT'])
+def sleep():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
+            p.terminate()
+            processes[i] = None
+
+    return "OK", 204
+
+
 # @app.route('/follow', methods=['PUT'])
 # def follow():
 #     for i, p in enumerate(processes):

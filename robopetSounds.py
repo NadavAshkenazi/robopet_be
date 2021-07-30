@@ -31,6 +31,7 @@ def make_sound(sound, channel, loops=-1):
     mixer.init()
     sound_obj = mixer.Sound(sound_files[sound])
     c = mixer.Channel(channel)
+    c.set_volume(0.4)
     c.play(sound_obj, loops=loops)
 
 

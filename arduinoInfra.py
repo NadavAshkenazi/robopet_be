@@ -7,9 +7,9 @@ def turn_30_right(times=1):
     ser.init_serial()
 
     ser.write("speed 255")
-    ser.write("right")
     ser.write("forward")
-    sleep(0.8*times)
+    ser.write("right")
+    sleep(0.4*times)
     ser.write("stop")
 
 def turn_30_left(times=1):
@@ -17,7 +17,7 @@ def turn_30_left(times=1):
     ser.init_serial()
 
     ser.write("speed 255")
-    ser.write("left")
     ser.write("forward")
-    sleep(0.8*times)
+    ser.write("left")
+    sleep(0.4*times)
     ser.write("stop")

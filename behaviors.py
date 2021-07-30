@@ -58,7 +58,7 @@ def _spin():
     t.join()
 
 
-def search_face_hostile():
+def recognize_owner():
     recogniser = FaceRecogniser()
     recogniser.load_embeddings()
     ser = mySerial()
@@ -114,20 +114,20 @@ def search_face():
     ser.init_serial()
     detector = FaceDetector()
     time.sleep(1)
-    ser.write("cam_setY 75")
     ser.write("cam_setX 90")
-    location = detector.get_face_location(7)
-    # TODO: Implement T/O in get_face_location
+    ser.write("cam_setY 75")
+    location = detector.get_face_location(5)
     if location is not None and 0.3 < location[0] < 0.7:
         print("Found at 90")
         print(location)
         return location, 90
 
     for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
+        ser.write("cam_setY 75")
         time.sleep(0.1)
         print(f"cam_setX {x}")
         ser.write(f"cam_setX {x}")
-        location = detector.get_face_location(5)
+        location = detector.get_face_location(3)
         if location is not None and 0.3 < location[0] < 0.7:
             print(f"Found at {x}")
             print(location)
@@ -140,21 +140,23 @@ def move_until_obstacle():
     ser = mySerial()
     ser.init_serial()
 
-    ser.write("speed 200")
-    ser.flush_input()
+    ser.write("speed 170")
     ser.write("forward")
+    ser.write("turn 90")
     count = 0
-    while count < 3:
-        ser.write("dist --front")
+    while count < 1:
         dist = None
         while dist is None or not dist.isnumeric():
-            if dist is not None and "unknown" in dist:
-                ser.write("dist --front")
+            ser.write("dist --front")
+            time.sleep(0.2)
             dist = ser.read()
 
+        ser.write("turn 90")
+        print(f"dist = {dist}")
         dist = float(dist)
-        if 40 > dist > 0:
+        if 60 > dist > 0:
             count += 1
+    print("Stopping")
     ser.write("stop")
 
 
@@ -170,10 +172,10 @@ def align_by_location(location):
         times = -1*actual_turn // 30
         for i in range(times):
             turn_30_left()
-    ser = mySerial()
-    ser.init_serial()
-    ser.write("turn 90")
-    ser.write("cam_setX 90")
+    # ser = mySerial()
+    # ser.init_serial()
+    # ser.write("turn 90")
+    # ser.write("cam_setX 90")
 
 
 def behave_hostile():
@@ -190,7 +192,7 @@ def behave_hostile():
 
     align_by_location(180 - head_angle)
     print("starting search_face_hostile")
-    name = search_face_hostile()
+    name = recognize_owner()
     stop_sound(0)
     if name == "Unknown":
         print("Stranger")
@@ -198,9 +200,10 @@ def behave_hostile():
         ser.write("eyes red")
         for i in range(3):
             ser.write("forward")
+            ser.write("turn 90")
             time.sleep(0.5)
             ser.write("backward")
-            time.sleep(0.5)
+            time.sleep(1)
         ser.write("stop")
     else:
         print("Owner")
@@ -211,24 +214,28 @@ def behave_hostile():
     stop_sound(0)
 
 
-# def behave_friendly():
-#     ser = mySerial()
-#     ser.init_serial()
-#     ser.write("eyes green")
-#     ser.write("turn 90")
-#     # _spin()
-#     location = search_face()
-#     # if location is None:
-#     #     ser.write("spin --left --front 2")
-#     #     location = search_face()
-#     if location is None:
-#         _bark()
-#         return
-#     align_by_location(180 - location[1])
-#     ser.write("turn 90")
-#     move_until_obstacle()
-# 
-# 
+def behave_friendly():
+    ser = mySerial()
+    ser.init_serial()
+    time.sleep(0.1)
+    ser.write("eyes green")
+    time.sleep(0.1)
+    ser.write("turn 90")
+    # _spin()
+    location_on_frame, head_angle = search_face()
+    # if location is None:
+    #     ser.write("spin --left --front 2")
+    #     location = search_face()
+    if location_on_frame is None:
+        _bark()
+        return
+    align_by_location(180 - head_angle)
+    ser.write("turn 90")
+    ser.write("cam_setX 90")
+    move_until_obstacle()
+    ser.write("shakeTail")
+
+
 # def follow_face():
 #     ser = mySerial()
 #     ser.init_serial()
