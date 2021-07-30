@@ -2,14 +2,17 @@
 
 from behaviors import _bark, _spin
 # from behaviors import *
-from flask import Flask, request, jsonify
+from behaviors import behave_hostile
+from flask import Flask, request
 import json
 import hashlib
 import time
 from multiprocessing import Process
 from picamera import PiCamera
 # from RobopetFaceDetect.main import train
+from RobopetFaceDetect.Recognition.recognition import FaceRecogniser
 from robopetSerial import mySerial
+import os
 
 hostileP = None
 friendlyP = None
@@ -75,6 +78,7 @@ def create_user():
         print(request.files.keys())
         return "No photo", 400
 
+    recogniser = FaceRecogniser()
     username = request.form['user']
     user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
 
@@ -83,7 +87,7 @@ def create_user():
     try:
         with open("users.json", "r") as users_file:
             users_dict = json.loads(users_file.read().replace('\n', ''))
-    except:
+    except FileNotFoundError:
         users_dict = {}
     if str(user_id) not in users_dict:
         users_dict[str(user_id)] = username
@@ -93,24 +97,55 @@ def create_user():
     f = request.files['photo']
     path = f"RobopetFaceDetect/Recognition/img/{username}.jpg"
     f.save(path)
+    recogniser.create_export_embeddings()
     # num_pics = train(user_id, path)
     # if num_pics < 30:
     #     return str(num_pics), 422
+    print("Done")
     return "ok", 201
 
 
-# @app.route('/hostile', methods=['PUT'])
-# def hostile():
-#     for i, p in enumerate(processes):
-#         if p is not None and p.is_alive():
-#             p.terminate()
-#             processes[i] = None
-# 
-#     processes[0] = Process(target=behave_hostile)
-#     processes[0].start()
-#     return "OK", 204
-# 
-# 
+@app.route('/remove_user', methods=['PUT'])
+def remove_user():
+    print("Got request")
+    username = request.form['user']
+    user_id = int(hashlib.sha256(username.encode('utf-8')).hexdigest(), 16) % 10**8
+
+    # read json file and update it
+    # json file is a dict - key is ID (string), value is username
+    try:
+        with open("users.json", "r") as users_file:
+            users_dict = json.loads(users_file.read().replace('\n', ''))
+    except FileNotFoundError:
+        users_dict = {}
+    users_dict.pop(str(user_id), "no user")
+    with open("users.json", "w") as users_file:
+        users_file.write(json.dumps(users_dict))
+
+    photo_path = f"RobopetFaceDetect/Recognition/img/{username}.jpg"
+    try:
+        os.remove(photo_path)
+    except FileNotFoundError:
+        pass
+
+    recogniser = FaceRecogniser()
+    recogniser.create_export_embeddings()
+    print("Done")
+    return "OK", 201
+
+
+@app.route('/hostile', methods=['PUT'])
+def hostile():
+    for i, p in enumerate(processes):
+        if p is not None and p.is_alive():
+            p.terminate()
+            processes[i] = None
+
+    processes[0] = Process(target=behave_hostile)
+    processes[0].start()
+    return "OK", 204
+
+
 # @app.route('/friendly', methods=['PUT'])
 # def friendly():
 #     for i, p in enumerate(processes):

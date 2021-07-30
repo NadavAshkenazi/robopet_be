@@ -5,6 +5,8 @@ from datetime import datetime
 from robopetSerial import mySerial
 from robopetSounds import make_repetitive_sounds, Soundtrack, make_sound, stop_sound
 # from RobopetFaceDetect.main import getLocation, getLocationHostile, face_recognize
+from RobopetFaceDetect.Detection.detection import FaceDetector
+from RobopetFaceDetect.Recognition.recognition import FaceRecogniser
 from arduinoInfra import turn_30_right, turn_30_left
 import threading
 from multiprocessing import Process
@@ -56,19 +58,20 @@ def _spin():
     t.join()
 
 
-# def search_face_hostile():
-#     ser = mySerial()
-#     ser.init_serial()
-#     print("sleeping before cam_setY 75")
-#     time.sleep(2)
-#     ser.write("cam_setY 75")
-#     ser.write("cam_setX 90")
-#     location, id, confidence = getLocationHostile(3)
-#     print("Found stranger")
-#     print(location)
-#     return id, confidence
-# 
-# 
+def search_face_hostile():
+    recogniser = FaceRecogniser()
+    recogniser.load_embeddings()
+    ser = mySerial()
+    ser.init_serial()
+    print("sleeping before cam_setY 75")
+    time.sleep(2)
+    ser.write("cam_setY 75")
+    ser.write("cam_setX 90")
+    name = recogniser.rec_video_from_camera()
+    print("Found person")
+    return name
+
+
 # def search_owner():
 #     print("Search owner")
 #     ser = mySerial()
@@ -80,51 +83,57 @@ def _spin():
 #     location, id, confidence = getLocationHostile(6)
 #     if id <= 0 or confidence >= 100:
 #         return None
-# 
+
 #     if location is not None and 0.3 < location[0] < 0.7:
 #         print("Found at 90")
 #         print(location)
 #         return location, 90
-# 
+
 #     for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
 #         print(f"cam_setX {x}")
 #         ser.write(f"cam_setX {x}")
 #         location, id, confidence = getLocationHostile(6)
 #         if id <= 0 or confidence >= 100:
 #             return None
-# 
+
 #         if location is not None and 0.3 < location[0] < 0.7:
 #             print(f"Found at {x}")
 #             print(location)
 #             return location, x
-# 
+
 #     return None
-# 
-# 
-# def search_face():
-#     print("Search face")
-#     ser = mySerial()
-#     ser.init_serial()
-#     print("cam_setY 75")
-#     time.sleep(2)
-#     ser.write("cam_setY 75")
-#     ser.write("cam_setX 90")
-#     location = getLocation(6)
-#     if location is not None and 0.3 < location[0] < 0.7:
-#         print("Found at 90")
-#         print(location)
-#         return location, 90
-# 
-#     for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
-#         print(f"cam_setX {x}")
-#         ser.write(f"cam_setX {x}")
-#         location = getLocation(3)
-#         if location is not None and 0.3 < location[0] < 0.7:
-#             print(f"Found at {x}")
-#             print(location)
-#             return location, x
-# 
-#     return None
+
+
+def search_face():
+    """
+    returns (location, head_angle)
+    location is a tuple of x,y axis in the frame
+    returns None if no faces were found
+    """
+    ser = mySerial()
+    ser.init_serial()
+    detector = FaceDetector()
+    time.sleep(1)
+    ser.write("cam_setY 75")
+    ser.write("cam_setX 90")
+    location = detector.get_face_location(7)
+    # TODO: Implement T/O in get_face_location
+    if location is not None and 0.3 < location[0] < 0.7:
+        print("Found at 90")
+        print(location)
+        return location, 90
+
+    for x in range(MIN_X_ANGLE, MAX_X_ANGLE, CAMERA_STEP):
+        time.sleep(0.1)
+        print(f"cam_setX {x}")
+        ser.write(f"cam_setX {x}")
+        location = detector.get_face_location(5)
+        if location is not None and 0.3 < location[0] < 0.7:
+            print(f"Found at {x}")
+            print(location)
+            return location, x
+
+    return None, None
 
 
 def move_until_obstacle():
@@ -142,68 +151,66 @@ def move_until_obstacle():
             if dist is not None and "unknown" in dist:
                 ser.write("dist --front")
             dist = ser.read()
-        
+
         dist = float(dist)
         if 40 > dist > 0:
             count += 1
     ser.write("stop")
 
 
-# def align_by_location(location):
-#     print(f"align by location: {location}")
-#     actual_turn = location - 90
-#     print(f"turn is {location}")
-#     if actual_turn > 0:
-#         times = actual_turn // 30
-#         for i in range(times):
-#             turn_30_right()
-#     else:
-#         times = -1*actual_turn // 30
-#         for i in range(times):
-#             turn_30_left()
-#     ser = mySerial()
-#     ser.init_serial()
-#     ser.write("turn 90")
-#     ser.write("cam_setX 90")
+def align_by_location(location):
+    print(f"align by location: {location}")
+    actual_turn = location - 90
+    print(f"turn is {location}")
+    if actual_turn > 0:
+        times = actual_turn // 30
+        for i in range(times):
+            turn_30_right()
+    else:
+        times = -1*actual_turn // 30
+        for i in range(times):
+            turn_30_left()
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("turn 90")
+    ser.write("cam_setX 90")
 
 
-# def behave_hostile():
-#     print("Hostile start")
-#     ser = mySerial()
-#     ser.init_serial()
-#     ser.write("mouthSet 60")
-#     make_sound(Soundtrack.GROWL, 0)
-#     location = search_face()
-#     if location is None:
-#         stop_sound(0)
-#         _bark()
-#         return
-# 
-#     align_by_location(180 - location[1])
-#     print("starting search_face_hostile")
-#     id, confidence = search_face_hostile()
-#     print(f"id is {id}")
-#     print(f"confidence is {confidence}")
-#     stop_sound(0)
-#     if id <= 0 or confidence > 100:
-#         print("Stranger")
-#         make_sound(Soundtrack.SCARY_BARK, 0)
-#         ser.write("eyes red")
-#         for i in range(3):
-#             ser.write("forward")
-#             time.sleep(0.5)
-#             ser.write("backward")
-#             time.sleep(0.5)
-#         ser.write("stop")
-#     else:
-#         print("Owner")
-#         make_sound(Soundtrack.HAPPY_BARK, 0)
-#         ser.write("eyes green")
-#         ser.write("shakeTail")
-#         ser.write("shakeTail")
-#     stop_sound(0)
-# 
-# 
+def behave_hostile():
+    print("Hostile start")
+    ser = mySerial()
+    ser.init_serial()
+    ser.write("mouthSet 60")
+    make_sound(Soundtrack.GROWL, 0)
+    location_on_frame, head_angle = search_face()
+    if location_on_frame is None:
+        stop_sound(0)
+        _bark()
+        return
+
+    align_by_location(180 - head_angle)
+    print("starting search_face_hostile")
+    name = search_face_hostile()
+    stop_sound(0)
+    if name == "Unknown":
+        print("Stranger")
+        make_sound(Soundtrack.SCARY_BARK, 0)
+        ser.write("eyes red")
+        for i in range(3):
+            ser.write("forward")
+            time.sleep(0.5)
+            ser.write("backward")
+            time.sleep(0.5)
+        ser.write("stop")
+    else:
+        print("Owner")
+        make_sound(Soundtrack.HAPPY_BARK, 0)
+        ser.write("eyes green")
+        ser.write("shakeTail")
+        ser.write("shakeTail")
+    stop_sound(0)
+
+
 # def behave_friendly():
 #     ser = mySerial()
 #     ser.init_serial()
