@@ -116,7 +116,7 @@ def search_face():
     time.sleep(1)
     ser.write("cam_setX 90")
     ser.write("cam_setY 75")
-    location = detector.get_face_location(5)
+    location = detector.get_face_location(3)
     if location is not None and 0.3 < location[0] < 0.7:
         print("Found at 90")
         print(location)
@@ -140,22 +140,23 @@ def move_until_obstacle():
     ser = mySerial()
     ser.init_serial()
 
-    ser.write("speed 170")
-    ser.write("forward")
-    ser.write("turn 90")
-    count = 0
-    while count < 1:
+    stop = False
+    while not stop:
+        ser.write("speed 170")
+        ser.write("forward")
+        ser.write("turn 90")
+        time.sleep(0.2)
+        ser.write("stop")
         dist = None
         while dist is None or not dist.isnumeric():
             ser.write("dist --front")
             time.sleep(0.2)
             dist = ser.read()
 
-        ser.write("turn 90")
-        print(f"dist = {dist}")
         dist = float(dist)
-        if 60 > dist > 0:
-            count += 1
+        if 40 > dist > 0:
+            stop = True
+
     print("Stopping")
     ser.write("stop")
 
@@ -168,10 +169,12 @@ def align_by_location(location):
         times = actual_turn // 30
         for i in range(times):
             turn_30_right()
+        turn_30_left()
     else:
         times = -1*actual_turn // 30
         for i in range(times):
             turn_30_left()
+        turn_30_right()
     # ser = mySerial()
     # ser.init_serial()
     # ser.write("turn 90")
